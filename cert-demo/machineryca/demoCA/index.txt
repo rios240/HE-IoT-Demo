@@ -1,0 +1,5 @@
+V	251105203618Z		123456	unknown	/C=US/ST=OH/L=Cincinnati/O=Machinery, Inc./CN=sensor-1A2B3C.machinery.com
+V	251105223010Z		123457	unknown	/C=US/ST=OH/L=Cincinnati/O=Machinery, Inc./CN=sensor-4D5E6F.machinery.com
+V	251105223425Z		123458	unknown	/C=US/ST=OH/L=Cincinnati/O=Machinery, Inc./CN=sensor-7G8H9I.machinery.com
+V	251105223858Z		123459	unknown	/C=US/ST=OH/L=Cincinnati/O=Machinery, Inc./CN=controller.machinery.com
+V	251105224449Z		12345A	unknown	/C=US/ST=CO/L=Denver/O=Machinery, Inc./CN=apps.machinery.com

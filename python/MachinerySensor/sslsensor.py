@@ -17,8 +17,9 @@ DUMMY_DNS = {"controller.machinery.com": "127.0.0.1",
              "google.com": "172.217.11.23"}
 
 
-class CommandListener(threading.Thread):
+class DataStreamer(threading.Thread):
     RECONNECT_INTERVAL = 10     # try reconnecting every 10 seconds on connection loss
+    CONTROLLER_COM_TIMEOUT = 10
 
     # Constructor
     def __init__(self, sensor):
@@ -51,24 +52,31 @@ class CommandListener(threading.Thread):
                     return
 
                 while True:     # loop to receive command and return response
-                    # receive up to 16 bytes command
-                    line = secure_sock.recv(16).decode('utf-8')
-                    if len(line) == 0:  # peer disconnected
-                        raise errors.GenericError("Connection lost to server backend")
+                    self.sensor.signal.wait()
+                    sensor_reading = self.sensor.reading
+                    self.sensor.signal.clear()
+
+                    message = self.sensor.sn + ":" + sensor_reading
+                    print(message)
+                    secure_sock.sendall(message.encode("utf-8"))
+
+                    secure_sock.settimeout(self.CONTROLLER_COM_TIMEOUT)
+                    try:
+                        status = client.recv(128).decode('utf-8')
+                        if len(status) == 0:
+                            raise errors.GenericError("Connection lost to " + CONTROLLER_CN)
+                    except secure_sock.timeout:  # response taking too long; forget it!
+                        print("[controller]\t" + CONTROLLER_CN + " timeout while waiting for response")
+                        status = "timeout"
 
                     # process the command
-                    line = line.rstrip()    # strip new line at end
-                    print(line)
-                    return_msg = self.bulb.run_a_command(line)
-
-                    # return command response
-                    print(return_msg)
-                    secure_sock.sendall((return_msg + "\n").encode('utf-8'))
+                    status = status.rstrip()    # strip new line at end
+                    print(status)
 
             except (ssl.SSLError, socket.error, errors.GenericError) as e:
                 print(str(e))
             finally:
-                print("Disconnected from server backend")
+                print("Disconnected from controller")
                 if secure_sock is not None:
                     secure_sock.close()
                 if sock is not None:
@@ -84,14 +92,7 @@ class CommandListener(threading.Thread):
         # load certification authorities
         context.load_verify_locations(keying.CERTIFICATE_AUTHORITY)
         # load client certificate and key
-        if self.sensor.sensor_sn == "T79HD20J":
-            context.load_cert_chain(certfile=keying.SENSOR_1A2B3C_CERTIFICATE, keyfile=keying.SENSOR_1A2B3C_KEY)
-        elif self.sensor.sensor_sn == "H54JU72D":
-            context.load_cert_chain(certfile=keying.SENSOR_4D5E6F_CERTIFICATE, keyfile=keying.SENSOR_4D5E6F_KEY)
-        elif self.sensor.sensor_sn == "L20YT63C":
-            context.load_cert_chain(certfile=keying.SENSOR_7G8H9I_CERTIFICATE, keyfile=keying.SENSOR_7G8H9I_KEY)
-        else:
-            raise errors.GenericError("Unknown sensor")
+        context.load_cert_chain(certfile=self.sensor.cert, keyfile=self.sensor.key)
 
         return context
 

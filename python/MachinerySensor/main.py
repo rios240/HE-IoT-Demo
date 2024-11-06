@@ -13,4 +13,9 @@ PRESSURE_SENSOR_ID = "sensor-7G8H9I"
 PRESSURE_SENSOR_SN = "L20YT63C"
 
 if __name__ == '__main__':
-    pass
+    sensor = ms.MachinerySensor(TEMPERATURE_SENSOR_ID, TEMPERATURE_SENSOR_SN)
+
+    data_streamer = sslsensor.DataStreamer(sensor)
+    data_streamer.start()
+    
+    sensor.start()

@@ -62,7 +62,7 @@ class DataStreamer(threading.Thread):
 
                     secure_sock.settimeout(self.CONTROLLER_COM_TIMEOUT)
                     try:
-                        status = client.recv(128).decode('utf-8')
+                        status = secure_sock.recv(128).decode('utf-8')
                         if len(status) == 0:
                             raise errors.GenericError("Connection lost to " + CONTROLLER_CN)
                     except secure_sock.timeout:  # response taking too long; forget it!

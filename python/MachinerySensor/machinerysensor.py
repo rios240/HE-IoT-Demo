@@ -5,7 +5,7 @@
 #       Pressure in PSI
 
 
-from threading import Thread, Event
+import threading
 import time
 import random
 import errors

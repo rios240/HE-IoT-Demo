@@ -1,9 +1,4 @@
 # Controller that accepts ssl connections from sensors
-#   The backend maintains a queue for each connected bulb,
-#   to which the frontend writes commands
-#   The backend forwards commands to the frontend from a
-#   bulb's queue and returns the response to the frontend
-#   A bulb is a client of the backend
 
 from sqlalchemy.exc import SQLAlchemyError
 import threading
@@ -12,8 +7,8 @@ import ssl
 import time
 import queue
 import os
-import database
 import errors
+
 
 CERTIFICATE_AUTHORITY = "trust_store/machineryca.crt"
 CONTROLLER_CERTIFICATE = "trust_store/controller.crt"
